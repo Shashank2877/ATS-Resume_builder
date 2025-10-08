@@ -1,6 +1,20 @@
 import { useState } from 'react';
-import type { ResumeData, BasicDetails, Education, Experience, Project } from '../types/resume';
-import { Plus, Trash2, User, GraduationCap, Briefcase, Award, Target, Lightbulb } from 'lucide-react';
+import { 
+  User, 
+  Mail, 
+  Phone, 
+  Briefcase, 
+  Sparkles, 
+  Save, 
+  Eye,
+  MapPin,
+  Target,
+  Plus,
+  X,
+  Github,
+  Linkedin
+} from 'lucide-react';
+import type { ResumeData, BasicDetails, Experience } from '../types/resume';
 
 interface ResumeEditorProps {
   resumeData: ResumeData;
@@ -8,7 +22,13 @@ interface ResumeEditorProps {
 }
 
 export default function ResumeEditor({ resumeData, onChange }: ResumeEditorProps) {
-  const [activeSection, setActiveSection] = useState('basic');
+  const [expandedSections] = useState({
+    basic: true,
+    about: true,
+    experience: true
+  });
+  
+  const [saveStatus, setSaveStatus] = useState('');
 
   const updateBasicDetails = (field: keyof BasicDetails, value: string) => {
     onChange({
@@ -18,6 +38,7 @@ export default function ResumeEditor({ resumeData, onChange }: ResumeEditorProps
         [field]: value
       }
     });
+    setSaveStatus('unsaved');
   };
 
   const updateAbout = (value: string) => {
@@ -25,32 +46,29 @@ export default function ResumeEditor({ resumeData, onChange }: ResumeEditorProps
       ...resumeData,
       about: value
     });
-  };
-
-  const addEducation = () => {
-    onChange({
-      ...resumeData,
-      education: [...resumeData.education, { year: '', degree: '', university: '' }]
-    });
-  };
-
-  const updateEducation = (index: number, field: keyof Education, value: string) => {
-    const newEducation = [...resumeData.education];
-    newEducation[index] = { ...newEducation[index], [field]: value };
-    onChange({ ...resumeData, education: newEducation });
-  };
-
-  const removeEducation = (index: number) => {
-    onChange({
-      ...resumeData,
-      education: resumeData.education.filter((_, i) => i !== index)
-    });
+    setSaveStatus('unsaved');
   };
 
   const addExperience = () => {
     onChange({
       ...resumeData,
-      experience: [...resumeData.experience, { year: '', company: '', location: '', role: '', description: '' }]
+      experience: [...resumeData.experience, { 
+        jobTitle: '', 
+        employer: '', 
+        city: '', 
+        country: '', 
+        startMonth: '', 
+        startYear: '', 
+        endMonth: '', 
+        endYear: '',
+        // Legacy fields
+        year: '', 
+        company: '', 
+        location: '', 
+        role: '', 
+        position: '', 
+        description: '' 
+      }]
     });
   };
 
@@ -58,6 +76,7 @@ export default function ResumeEditor({ resumeData, onChange }: ResumeEditorProps
     const newExperience = [...resumeData.experience];
     newExperience[index] = { ...newExperience[index], [field]: value };
     onChange({ ...resumeData, experience: newExperience });
+    setSaveStatus('unsaved');
   };
 
   const removeExperience = (index: number) => {
@@ -67,450 +86,457 @@ export default function ResumeEditor({ resumeData, onChange }: ResumeEditorProps
     });
   };
 
-  const addProject = () => {
-    onChange({
-      ...resumeData,
-      projects: [...resumeData.projects, { name: '', result: '' }]
-    });
+  const handleSave = () => {
+    setSaveStatus('saving');
+    setTimeout(() => {
+      setSaveStatus('saved');
+      setTimeout(() => setSaveStatus(''), 2000);
+    }, 1000);
   };
-
-  const updateProject = (index: number, field: keyof Project, value: string) => {
-    const newProjects = [...resumeData.projects];
-    newProjects[index] = { ...newProjects[index], [field]: value };
-    onChange({ ...resumeData, projects: newProjects });
-  };
-
-  const removeProject = (index: number) => {
-    onChange({
-      ...resumeData,
-      projects: resumeData.projects.filter((_, i) => i !== index)
-    });
-  };
-
-  const addSkill = () => {
-    onChange({
-      ...resumeData,
-      skills: [...resumeData.skills, '']
-    });
-  };
-
-  const updateSkill = (index: number, value: string) => {
-    const newSkills = [...resumeData.skills];
-    newSkills[index] = value;
-    onChange({ ...resumeData, skills: newSkills });
-  };
-
-  const removeSkill = (index: number) => {
-    onChange({
-      ...resumeData,
-      skills: resumeData.skills.filter((_, i) => i !== index)
-    });
-  };
-
-  const addCertification = () => {
-    onChange({
-      ...resumeData,
-      certifications: [...resumeData.certifications, '']
-    });
-  };
-
-  const updateCertification = (index: number, value: string) => {
-    const newCertifications = [...resumeData.certifications];
-    newCertifications[index] = value;
-    onChange({ ...resumeData, certifications: newCertifications });
-  };
-
-  const removeCertification = (index: number) => {
-    onChange({
-      ...resumeData,
-      certifications: resumeData.certifications.filter((_, i) => i !== index)
-    });
-  };
-
-  const sections = [
-    { id: 'basic', label: 'Basic Info', icon: User },
-    { id: 'about', label: 'About Me', icon: Target },
-    { id: 'education', label: 'Education', icon: GraduationCap },
-    { id: 'experience', label: 'Experience', icon: Briefcase },
-    { id: 'skills', label: 'Skills', icon: Lightbulb },
-    { id: 'certifications', label: 'Certifications', icon: Award },
-    { id: 'projects', label: 'Projects', icon: Target }
-  ];
 
   return (
-    <div className="space-y-6">
-      {/* Section Navigation */}
-      <div className="bg-white rounded-lg shadow-lg p-4">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Edit Resume</h2>
-        <div className="grid grid-cols-2 gap-2">
-          {sections.map((section) => {
-            const Icon = section.icon;
-            return (
-              <button
-                key={section.id}
-                onClick={() => setActiveSection(section.id)}
-                className={`p-3 rounded-lg text-left flex items-center space-x-2 transition-all duration-200 ${
-                  activeSection === section.id
-                    ? 'bg-primary-600 text-white shadow-lg'
-                    : 'bg-gray-50 text-gray-700 hover:bg-gray-100'
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span className="text-sm font-medium">{section.label}</span>
-              </button>
-            );
-          })}
-        </div>
+    <div className="dynamic-resume-editor">
+      {/* Animated Background */}
+      <div className="animated-background">
+        <div className="floating-orb floating-orb-1"></div>
+        <div className="floating-orb floating-orb-2"></div>
+        <div className="floating-orb floating-orb-3"></div>
       </div>
 
-      {/* Section Content */}
-      <div className="resume-section">
-        {activeSection === 'basic' && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-              <User className="h-5 w-5" />
-              <span>Basic Information</span>
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                <input
-                  type="text"
-                  value={resumeData.basicdetails.name}
-                  onChange={(e) => updateBasicDetails('name', e.target.value)}
-                  className="input-field"
-                  placeholder="Your full name"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Professional Title</label>
-                <input
-                  type="text"
-                  value={resumeData.basicdetails.title}
-                  onChange={(e) => updateBasicDetails('title', e.target.value)}
-                  className="input-field"
-                  placeholder="e.g. Software Engineer"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                <input
-                  type="tel"
-                  value={resumeData.basicdetails.phone}
-                  onChange={(e) => updateBasicDetails('phone', e.target.value)}
-                  className="input-field"
-                  placeholder="+1 (555) 123-4567"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
-                <input
-                  type="email"
-                  value={resumeData.basicdetails.email}
-                  onChange={(e) => updateBasicDetails('email', e.target.value)}
-                  className="input-field"
-                  placeholder="your.email@example.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Website</label>
-                <input
-                  type="url"
-                  value={resumeData.basicdetails.website}
-                  onChange={(e) => updateBasicDetails('website', e.target.value)}
-                  className="input-field"
-                  placeholder="www.yourwebsite.com"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                <input
-                  type="text"
-                  value={resumeData.basicdetails.address}
-                  onChange={(e) => updateBasicDetails('address', e.target.value)}
-                  className="input-field"
-                  placeholder="City, State, Country"
-                />
-              </div>
-            </div>
+      <div className="editor-container">
+        {/* Header */}
+        <div className="editor-header">
+          <div className="editor-title-card">
+            <Sparkles className="sparkle-icon" />
+            <h1 className="editor-title">Edit Resume</h1>
+            <Sparkles className="sparkle-icon" />
           </div>
-        )}
+          <p className="editor-subtitle">Update your information in real-time</p>
+        </div>
 
-        {activeSection === 'about' && (
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-              <Target className="h-5 w-5" />
-              <span>About Me</span>
-            </h3>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Professional Summary</label>
-              <textarea
-                value={resumeData.about}
-                onChange={(e) => updateAbout(e.target.value)}
-                rows={4}
-                className="input-field resize-none"
-                placeholder="Write a compelling professional summary that highlights your key achievements and skills..."
-              />
+        {/* Action Buttons */}
+        <div className="action-buttons">
+          <button 
+            onClick={handleSave}
+            className="save-button"
+          >
+            <div className="button-overlay"></div>
+            <div className="button-content">
+              <Save className="button-icon" />
+              {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved!' : 'Save Changes'}
             </div>
-          </div>
-        )}
+          </button>
+          
+          <button className="preview-button">
+            <div className="button-content">
+              <Eye className="button-icon" />
+              Preview
+            </div>
+          </button>
+        </div>
 
-        {activeSection === 'education' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-                <GraduationCap className="h-5 w-5" />
-                <span>Education</span>
-              </h3>
-              <button onClick={addEducation} className="btn-primary flex items-center space-x-1">
-                <Plus className="h-4 w-4" />
-                <span>Add Education</span>
-              </button>
-            </div>
-            <div className="space-y-4">
-              {resumeData.education.map((edu, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4 relative">
-                  <button
-                    onClick={() => removeEducation(index)}
-                    className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div className="main-content">
+          <div className="content-card">
+            {/* Basic Information Section */}
+            {expandedSections.basic && (
+              <div className="form-section">
+                <div className="section-header">
+                  <div className="section-header-icon" style={{ backgroundColor: 'rgba(59, 130, 246, 0.2)' }}>
+                    <User className="section-icon" style={{ color: '#60a5fa' }} />
+                  </div>
+                  <h2 className="section-header-title">Basic Information</h2>
+                </div>
+
+                <div className="form-grid form-grid-2">
+                  <div className="form-group">
+                    <label className="form-label">
+                      <User className="form-label-icon" style={{ color: '#60a5fa' }} />
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      value={resumeData.basicdetails.firstName || ''}
+                      onChange={(e) => updateBasicDetails('firstName', e.target.value)}
+                      className="form-input"
+                      style={{ '--focus-color': '#60a5fa' } as React.CSSProperties}
+                      placeholder="Diya"
+                    />
+                    <div className="form-input-overlay"></div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      <User className="form-label-icon" style={{ color: '#60a5fa' }} />
+                      Surname
+                    </label>
+                    <input
+                      type="text"
+                      value={resumeData.basicdetails.surname || ''}
+                      onChange={(e) => updateBasicDetails('surname', e.target.value)}
+                      className="form-input"
+                      style={{ '--focus-color': '#60a5fa' } as React.CSSProperties}
+                      placeholder="Agarwal"
+                    />
+                    <div className="form-input-overlay"></div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      <MapPin className="form-label-icon" style={{ color: '#34d399' }} />
+                      City
+                    </label>
+                    <input
+                      type="text"
+                      value={resumeData.basicdetails.city || ''}
+                      onChange={(e) => updateBasicDetails('city', e.target.value)}
+                      className="form-input"
+                      style={{ '--focus-color': '#34d399' } as React.CSSProperties}
+                      placeholder="New Delhi"
+                    />
+                    <div className="form-input-overlay"></div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      <MapPin className="form-label-icon" style={{ color: '#34d399' }} />
+                      Country
+                    </label>
+                    <input
+                      type="text"
+                      value={resumeData.basicdetails.country || ''}
+                      onChange={(e) => updateBasicDetails('country', e.target.value)}
+                      className="form-input"
+                      style={{ '--focus-color': '#34d399' } as React.CSSProperties}
+                      placeholder="India"
+                    />
+                    <div className="form-input-overlay"></div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      <MapPin className="form-label-icon" style={{ color: '#34d399' }} />
+                      Pin Code
+                    </label>
+                    <input
+                      type="text"
+                      value={resumeData.basicdetails.pinCode || ''}
+                      onChange={(e) => updateBasicDetails('pinCode', e.target.value)}
+                      className="form-input"
+                      style={{ '--focus-color': '#34d399' } as React.CSSProperties}
+                      placeholder="110034"
+                    />
+                    <div className="form-input-overlay"></div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      <Phone className="form-label-icon" style={{ color: '#f472b6' }} />
+                      Phone
+                    </label>
+                    <input
+                      type="tel"
+                      value={resumeData.basicdetails.phone}
+                      onChange={(e) => updateBasicDetails('phone', e.target.value)}
+                      className="form-input"
+                      style={{ '--focus-color': '#f472b6' } as React.CSSProperties}
+                      placeholder="+91 11 1234 5677"
+                    />
+                    <div className="form-input-overlay"></div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      <Mail className="form-label-icon" style={{ color: '#a78bfa' }} />
+                      Email*
+                    </label>
+                    <input
+                      type="email"
+                      value={resumeData.basicdetails.email}
+                      onChange={(e) => updateBasicDetails('email', e.target.value)}
+                      className="form-input"
+                      style={{ '--focus-color': '#a78bfa' } as React.CSSProperties}
+                      placeholder="shashank8877xxdprakash@gmail.com"
+                    />
+                    <div className="form-input-overlay"></div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      <Github className="form-label-icon" style={{ color: '#6b7280' }} />
+                      GitHub
+                    </label>
+                    <input
+                      type="text"
+                      value={resumeData.basicdetails.github || ''}
+                      onChange={(e) => updateBasicDetails('github', e.target.value)}
+                      className="form-input"
+                      style={{ '--focus-color': '#6b7280' } as React.CSSProperties}
+                      placeholder="GitHub"
+                    />
+                    <div className="form-input-overlay"></div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      <Linkedin className="form-label-icon" style={{ color: '#0077b5' }} />
+                      LinkedIn
+                    </label>
+                    <input
+                      type="text"
+                      value={resumeData.basicdetails.linkedin || ''}
+                      onChange={(e) => updateBasicDetails('linkedin', e.target.value)}
+                      className="form-input"
+                      style={{ '--focus-color': '#0077b5' } as React.CSSProperties}
+                      placeholder="LinkedIn"
+                    />
+                    <div className="form-input-overlay"></div>
+                  </div>
+
+                  <div className="form-group">
+                    <label className="form-label">
+                      <Briefcase className="form-label-icon" style={{ color: '#fb923c' }} />
+                      Professional Title
+                    </label>
+                    <input
+                      type="text"
+                      value={resumeData.basicdetails.title}
+                      onChange={(e) => updateBasicDetails('title', e.target.value)}
+                      className="form-input"
+                      style={{ '--focus-color': '#fb923c' } as React.CSSProperties}
+                      placeholder="Software Engineer"
+                    />
+                    <div className="form-input-overlay"></div>
+                  </div>
+                </div>
+
+                {/* AI Suggestions Card */}
+                <div className="ai-tip-card">
+                  <div className="ai-tip-content">
+                    <Sparkles className="ai-tip-icon" />
                     <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
-                      <input
-                        type="text"
-                        value={edu.year}
-                        onChange={(e) => updateEducation(index, 'year', e.target.value)}
-                        className="input-field"
-                        placeholder="2020 - 2024"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Degree</label>
-                      <input
-                        type="text"
-                        value={edu.degree}
-                        onChange={(e) => updateEducation(index, 'degree', e.target.value)}
-                        className="input-field"
-                        placeholder="Bachelor of Science"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">University</label>
-                      <input
-                        type="text"
-                        value={edu.university}
-                        onChange={(e) => updateEducation(index, 'university', e.target.value)}
-                        className="input-field"
-                        placeholder="University Name"
-                      />
+                      <h4 className="ai-tip-title">AI Tip</h4>
+                      <p className="ai-tip-text">Make sure your professional title includes relevant keywords for better ATS optimization. Try "Senior Marketing Manager | Digital Strategy Expert"</p>
                     </div>
                   </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+              </div>
+            )}
 
-        {activeSection === 'experience' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-                <Briefcase className="h-5 w-5" />
-                <span>Work Experience</span>
-              </h3>
-              <button onClick={addExperience} className="btn-primary flex items-center space-x-1">
-                <Plus className="h-4 w-4" />
-                <span>Add Experience</span>
-              </button>
-            </div>
-            <div className="space-y-4">
-              {resumeData.experience.map((exp, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4 relative">
-                  <button
-                    onClick={() => removeExperience(index)}
-                    className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Year</label>
-                        <input
-                          type="text"
-                          value={exp.year}
-                          onChange={(e) => updateExperience(index, 'year', e.target.value)}
-                          className="input-field"
-                          placeholder="2020 - 2023"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Job Title</label>
-                        <input
-                          type="text"
-                          value={exp.role}
-                          onChange={(e) => updateExperience(index, 'role', e.target.value)}
-                          className="input-field"
-                          placeholder="Software Engineer"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Company</label>
-                        <input
-                          type="text"
-                          value={exp.company}
-                          onChange={(e) => updateExperience(index, 'company', e.target.value)}
-                          className="input-field"
-                          placeholder="Company Name"
-                        />
-                      </div>
-                      <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Location</label>
-                        <input
-                          type="text"
-                          value={exp.location}
-                          onChange={(e) => updateExperience(index, 'location', e.target.value)}
-                          className="input-field"
-                          placeholder="City, Country"
-                        />
-                      </div>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                      <textarea
-                        value={exp.description}
-                        onChange={(e) => updateExperience(index, 'description', e.target.value)}
-                        rows={3}
-                        className="input-field resize-none"
-                        placeholder="Describe your responsibilities and achievements..."
-                      />
-                    </div>
+            {/* About Section */}
+            {expandedSections.about && (
+              <div className="form-section">
+                <div className="section-header">
+                  <div className="section-header-icon" style={{ backgroundColor: 'rgba(139, 92, 246, 0.2)' }}>
+                    <Target className="section-icon" style={{ color: '#a78bfa' }} />
                   </div>
+                  <h2 className="section-header-title">About Me</h2>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeSection === 'skills' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-                <Lightbulb className="h-5 w-5" />
-                <span>Skills</span>
-              </h3>
-              <button onClick={addSkill} className="btn-primary flex items-center space-x-1">
-                <Plus className="h-4 w-4" />
-                <span>Add Skill</span>
-              </button>
-            </div>
-            <div className="space-y-2">
-              {resumeData.skills.map((skill, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    value={skill}
-                    onChange={(e) => updateSkill(index, e.target.value)}
-                    className="input-field flex-1"
-                    placeholder="Enter a skill"
+                <div className="form-group">
+                  <label className="form-label">Professional Summary</label>
+                  <textarea
+                    value={resumeData.about}
+                    onChange={(e) => updateAbout(e.target.value)}
+                    className="form-input form-textarea"
+                    style={{ '--focus-color': '#a78bfa' } as React.CSSProperties}
+                    placeholder="Write a compelling summary about yourself..."
                   />
+                  <div className="form-input-overlay"></div>
+                </div>
+              </div>
+            )}
+
+            {/* Experience Section */}
+            {expandedSections.experience && (
+              <div className="form-section">
+                <div className="section-header">
+                  <div className="section-header-icon" style={{ backgroundColor: 'rgba(245, 158, 11, 0.2)' }}>
+                    <Briefcase className="section-icon" style={{ color: '#f59e0b' }} />
+                  </div>
+                  <h2 className="section-header-title">Experience</h2>
                   <button
-                    onClick={() => removeSkill(index)}
-                    className="text-red-500 hover:text-red-700 p-2"
+                    onClick={addExperience}
+                    className="add-item-button"
+                    type="button"
                   >
-                    <Trash2 className="h-4 w-4" />
+                    <Plus className="add-icon" />
+                    Add Experience
                   </button>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
 
-        {activeSection === 'certifications' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-                <Award className="h-5 w-5" />
-                <span>Certifications</span>
-              </h3>
-              <button onClick={addCertification} className="btn-primary flex items-center space-x-1">
-                <Plus className="h-4 w-4" />
-                <span>Add Certification</span>
-              </button>
-            </div>
-            <div className="space-y-2">
-              {resumeData.certifications.map((cert, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <input
-                    type="text"
-                    value={cert}
-                    onChange={(e) => updateCertification(index, e.target.value)}
-                    className="input-field flex-1"
-                    placeholder="Enter certification name"
-                  />
-                  <button
-                    onClick={() => removeCertification(index)}
-                    className="text-red-500 hover:text-red-700 p-2"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {activeSection === 'projects' && (
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
-              <h3 className="text-lg font-semibold text-gray-900 flex items-center space-x-2">
-                <Target className="h-5 w-5" />
-                <span>Projects</span>
-              </h3>
-              <button onClick={addProject} className="btn-primary flex items-center space-x-1">
-                <Plus className="h-4 w-4" />
-                <span>Add Project</span>
-              </button>
-            </div>
-            <div className="space-y-4">
-              {resumeData.projects.map((project, index) => (
-                <div key={index} className="border border-gray-200 rounded-lg p-4 relative">
-                  <button
-                    onClick={() => removeProject(index)}
-                    className="absolute top-2 right-2 text-red-500 hover:text-red-700"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
-                  <div className="space-y-4">
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Project Name</label>
-                      <input
-                        type="text"
-                        value={project.name}
-                        onChange={(e) => updateProject(index, 'name', e.target.value)}
-                        className="input-field"
-                        placeholder="Project name"
-                      />
+                {resumeData.experience.map((exp, index) => (
+                  <div key={index} className="experience-item">
+                    <div className="item-header">
+                      <h3 className="item-title">Experience {index + 1}</h3>
+                      <button
+                        onClick={() => removeExperience(index)}
+                        className="remove-item-button"
+                        type="button"
+                      >
+                        <X className="remove-icon" />
+                      </button>
                     </div>
-                    <div>
-                      <label className="block text-sm font-medium text-gray-700 mb-1">Result/Achievement</label>
-                      <input
-                        type="text"
-                        value={project.result}
-                        onChange={(e) => updateProject(index, 'result', e.target.value)}
-                        className="input-field"
-                        placeholder="e.g. Increased user engagement by 40%"
-                      />
+
+                    <div className="form-grid form-grid-2">
+                      <div className="form-group">
+                        <label className="form-label">
+                          <Briefcase className="form-label-icon" style={{ color: '#f59e0b' }} />
+                          Job Title
+                        </label>
+                        <input
+                          type="text"
+                          value={exp.jobTitle || ''}
+                          onChange={(e) => updateExperience(index, 'jobTitle', e.target.value)}
+                          className="form-input"
+                          style={{ '--focus-color': '#f59e0b' } as React.CSSProperties}
+                          placeholder="Retail Sales Associate"
+                        />
+                        <div className="form-input-overlay"></div>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">
+                          <Briefcase className="form-label-icon" style={{ color: '#f59e0b' }} />
+                          Employer
+                        </label>
+                        <input
+                          type="text"
+                          value={exp.employer || ''}
+                          onChange={(e) => updateExperience(index, 'employer', e.target.value)}
+                          className="form-input"
+                          style={{ '--focus-color': '#f59e0b' } as React.CSSProperties}
+                          placeholder="ZARA"
+                        />
+                        <div className="form-input-overlay"></div>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">
+                          <MapPin className="form-label-icon" style={{ color: '#34d399' }} />
+                          City
+                        </label>
+                        <input
+                          type="text"
+                          value={exp.city || ''}
+                          onChange={(e) => updateExperience(index, 'city', e.target.value)}
+                          className="form-input"
+                          style={{ '--focus-color': '#34d399' } as React.CSSProperties}
+                          placeholder="New Delhi"
+                        />
+                        <div className="form-input-overlay"></div>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">
+                          <MapPin className="form-label-icon" style={{ color: '#34d399' }} />
+                          Country
+                        </label>
+                        <input
+                          type="text"
+                          value={exp.country || ''}
+                          onChange={(e) => updateExperience(index, 'country', e.target.value)}
+                          className="form-input"
+                          style={{ '--focus-color': '#34d399' } as React.CSSProperties}
+                          placeholder="India"
+                        />
+                        <div className="form-input-overlay"></div>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">Start Date</label>
+                        <div className="date-inputs">
+                          <div className="date-input-group">
+                            <label className="date-sub-label">Month</label>
+                            <select
+                              value={exp.startMonth || ''}
+                              onChange={(e) => updateExperience(index, 'startMonth', e.target.value)}
+                              className="form-input"
+                              style={{ '--focus-color': '#8b5cf6' } as React.CSSProperties}
+                            >
+                              <option value="">Select</option>
+                              <option value="01">January</option>
+                              <option value="02">February</option>
+                              <option value="03">March</option>
+                              <option value="04">April</option>
+                              <option value="05">May</option>
+                              <option value="06">June</option>
+                              <option value="07">July</option>
+                              <option value="08">August</option>
+                              <option value="09">September</option>
+                              <option value="10">October</option>
+                              <option value="11">November</option>
+                              <option value="12">December</option>
+                            </select>
+                          </div>
+                          <div className="date-input-group">
+                            <label className="date-sub-label">Year</label>
+                            <input
+                              type="number"
+                              value={exp.startYear || ''}
+                              onChange={(e) => updateExperience(index, 'startYear', e.target.value)}
+                              className="form-input"
+                              style={{ '--focus-color': '#8b5cf6' } as React.CSSProperties}
+                              placeholder="2023"
+                              min="1950"
+                              max="2030"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="form-group">
+                        <label className="form-label">End Date</label>
+                        <div className="date-inputs">
+                          <div className="date-input-group">
+                            <label className="date-sub-label">Month</label>
+                            <select
+                              value={exp.endMonth || ''}
+                              onChange={(e) => updateExperience(index, 'endMonth', e.target.value)}
+                              className="form-input"
+                              style={{ '--focus-color': '#8b5cf6' } as React.CSSProperties}
+                            >
+                              <option value="">Select</option>
+                              <option value="01">January</option>
+                              <option value="02">February</option>
+                              <option value="03">March</option>
+                              <option value="04">April</option>
+                              <option value="05">May</option>
+                              <option value="06">June</option>
+                              <option value="07">July</option>
+                              <option value="08">August</option>
+                              <option value="09">September</option>
+                              <option value="10">October</option>
+                              <option value="11">November</option>
+                              <option value="12">December</option>
+                            </select>
+                          </div>
+                          <div className="date-input-group">
+                            <label className="date-sub-label">Year</label>
+                            <input
+                              type="number"
+                              value={exp.endYear || ''}
+                              onChange={(e) => updateExperience(index, 'endYear', e.target.value)}
+                              className="form-input"
+                              style={{ '--focus-color': '#8b5cf6' } as React.CSSProperties}
+                              placeholder="2024"
+                              min="1950"
+                              max="2030"
+                            />
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+
+                {resumeData.experience.length === 0 && (
+                  <div className="empty-state">
+                    <p className="empty-state-text">No experience added yet. Click "Add Experience" to get started.</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ export default function App() {
               </ProtectedRoute>
             } 
           />
-          <Route path="/" element={<Navigate to="/builder" replace />} />
+          <Route path="/" element={<Navigate to="/signin" replace />} />
         </Routes>
       </Router>
     </AuthProvider>

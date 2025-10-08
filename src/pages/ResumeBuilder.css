@@ -1,0 +1,569 @@
+/* Resume Builder Styles - Split Screen Layout */
+
+/* Split Layout Container */
+.split-layout {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+  padding: 2rem;
+  gap: 2rem;
+}
+
+/* Left Panel - Form */
+.form-panel {
+  width: 45%;
+  max-width: 600px;
+  padding: 2rem;
+  overflow-y: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+/* Right Panel - Preview */
+.preview-panel {
+  width: 45%;
+  max-width: 700px;
+  padding: 2rem;
+  overflow-y: auto;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e2e8f0;
+}
+
+.preview-content {
+  font-size: 1rem;
+  line-height: 1.6;
+  zoom: 1.1;
+}
+
+.form-container {
+  max-width: 32rem;
+}
+
+.form-title {
+  font-size: 1.875rem;
+  font-weight: bold;
+  margin-bottom: 1.5rem;
+  color: #4f46e5;
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 2rem;
+}
+
+.form-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.form-section-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin: 0;
+}
+
+.form-add-btn {
+  padding: 0.5rem;
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-add-btn:hover {
+  background-color: #4338ca;
+}
+
+/* Form Items */
+.form-item {
+  border-left: 4px solid #a5b4fc;
+  padding-left: 1rem;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.form-remove-btn {
+  position: absolute;
+  left: -0.5rem;
+  top: 0;
+  padding: 0.25rem;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-remove-btn:hover {
+  background-color: #b91c1c;
+}
+
+/* Form Inputs */
+.form-input-group {
+  margin-bottom: 0.75rem;
+}
+
+.form-label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: #1f2937;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: #1f2937;
+  resize: vertical;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-textarea:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+/* Form List Items */
+.form-list-item {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  align-items: center;
+}
+
+.form-list-input {
+  flex: 1;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: #1f2937;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-list-input:focus {
+  outline: none;
+  border-color: #4f46e5;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-list-remove-btn {
+  padding: 0.5rem;
+  background-color: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.form-list-remove-btn:hover {
+  background-color: #b91c1c;
+}
+
+.preview-header {
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.download-pdf-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background-color: #059669;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
+}
+
+.download-pdf-btn:hover {
+  background-color: #047857;
+}
+
+/* Preview Content */
+.preview-content {
+  background: white;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  padding: 3rem;
+  border-radius: 0.5rem;
+}
+
+/* Preview Header */
+.preview-header-section {
+  border-bottom: 2px solid #1f2937;
+  padding-bottom: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.preview-name {
+  font-size: 2.25rem;
+  font-weight: bold;
+  margin-bottom: 0.5rem;
+  margin: 0;
+  color: #1f2937;
+}
+
+.preview-email {
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+  margin: 0;
+  color: #1f2937;
+}
+
+.preview-links {
+  font-size: 0.875rem;
+  color: #374151;
+  margin: 0;
+}
+
+.preview-link {
+  color: inherit;
+  text-decoration: none;
+}
+
+.preview-link:hover {
+  text-decoration: underline;
+}
+
+/* Preview Sections */
+.preview-section {
+  margin-bottom: 1.5rem;
+}
+
+.preview-section-title {
+  font-size: 1.25rem;
+  font-weight: bold;
+  text-transform: uppercase;
+  border-bottom: 2px solid #1f2937;
+  padding-bottom: 0.25rem;
+  margin-bottom: 0.75rem;
+  margin-top: 0;
+  color: #1f2937;
+}
+
+/* Preview Items */
+.preview-item {
+  margin-bottom: 1rem;
+}
+
+.preview-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.preview-item-title {
+  font-weight: bold;
+  text-transform: uppercase;
+  margin: 0;
+  color: #1f2937;
+}
+
+.preview-item-date {
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.preview-item-subtitle {
+  font-style: italic;
+  margin: 0;
+  color: #1f2937;
+}
+
+.preview-item-detail {
+  margin: 0;
+  color: #1f2937;
+}
+
+.preview-item-description {
+  margin-top: 0.25rem;
+  margin-bottom: 0;
+  color: #1f2937;
+}
+
+/* Preview Skills */
+.preview-skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.preview-skill-category {
+  margin-bottom: 1rem;
+}
+
+.preview-skill-category-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  margin-top: 0;
+}
+
+.preview-skill-tag {
+  color: #1f2937;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.875rem;
+  border: 1px solid #e5e7eb;
+}
+
+.preview-skill-tag.general {
+  background: #f3f4f6;
+}
+
+.preview-skill-tag.technical {
+  background: #dbeafe;
+  border-color: #93c5fd;
+  color: #1e40af;
+}
+
+.preview-skill-tag.soft {
+  background: #ecfdf5;
+  border-color: #86efac;
+  color: #166534;
+}
+
+/* Preview Project Link */
+.preview-project-link {
+  font-size: 0.875rem;
+  color: #2563eb;
+  text-decoration: none;
+  display: block;
+}
+
+.preview-project-link:hover {
+  text-decoration: underline;
+}
+
+/* Preview Lists */
+.preview-list {
+  list-style-type: disc;
+  list-style-position: inside;
+  margin: 0.25rem 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.preview-list li {
+  color: #1f2937;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .split-layout {
+    flex-direction: column;
+  }
+  
+  .form-panel,
+  .preview-panel {
+    width: 100%;
+  }
+  
+  .form-panel {
+    border-right: none;
+    border-bottom: 2px solid #e2e8f0;
+  }
+}
+
+@media (max-width: 768px) {
+  .form-panel,
+  .preview-panel {
+    padding: 1rem;
+  }
+  
+  .preview-content {
+    padding: 1.5rem;
+  }
+  
+  .preview-name {
+    font-size: 1.875rem;
+  }
+  
+  .preview-item-header {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+  
+  .preview-item-date {
+    align-self: flex-start;
+  }
+}
+
+/* Responsive Design for Centered Layout */
+@media (max-width: 1200px) {
+  .split-layout {
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1rem;
+  }
+  
+  .form-panel,
+  .preview-panel {
+    width: 100%;
+    max-width: 800px;
+  }
+}
+
+@media (max-width: 768px) {
+  .split-layout {
+    padding: 0.5rem;
+    gap: 1rem;
+  }
+  
+  .form-panel,
+  .preview-panel {
+    padding: 1.5rem;
+    border-radius: 8px;
+  }
+}
+
+/* New Preview Styles */
+.preview-phone,
+.preview-address {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0.25rem 0;
+}
+
+.preview-section-content {
+  color: #374151;
+  line-height: 1.6;
+  margin-bottom: 1rem;
+}
+
+.preview-item-tech {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-style: italic;
+}
+
+.preview-cert-item {
+  margin-bottom: 0.5rem;
+}
+
+.preview-cert-link {
+  color: #2563eb;
+  text-decoration: none;
+  font-size: 0.875rem;
+}
+
+.preview-cert-link:hover {
+  text-decoration: underline;
+}
+
+/* Section Toggle Styles */
+.section-options {
+  margin-bottom: 1rem;
+}
+
+.remove-section-btn {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.remove-section-btn:hover {
+  background: #dc2626;
+}
+
+.hidden-section {
+  background: #f9fafb;
+  border: 2px dashed #d1d5db;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.hidden-section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.hidden-section-title {
+  font-weight: 600;
+  color: #6b7280;
+}
+
+.restore-section-btn {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.restore-section-btn:hover {
+  background: #059669;
+}
+
+.hidden-section-note {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin: 0;
+  font-style: italic;
+}
