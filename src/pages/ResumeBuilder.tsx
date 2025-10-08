@@ -69,13 +69,16 @@ export default function ResumeBuilder() {
   const updateField = (section: string, index: number | string, field: string | null, value: string) => {
     const newResume = { ...resume };
     if (section === 'basicdetails') {
-      (newResume.basicdetails as any)[field as string] = value;
+      (newResume.basicdetails as Record<string, any>)[field] = value;
     } else if (section === 'about') {
       newResume.about = value;
     } else if (typeof index === 'number') {
-      (newResume as any)[section][index][field as string] = value;
+      const sectionArray = newResume[section] as any[];
+      if (sectionArray && sectionArray[index]) {
+        (sectionArray[index] as Record<string, any>)[field] = value;
+      }
     } else {
-      (newResume as any)[section][field as string] = value;
+      (newResume[section] as Record<string, any>)[field] = value;
     }
     setResume(newResume);
   };

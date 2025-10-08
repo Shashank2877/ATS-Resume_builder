@@ -83,6 +83,19 @@ export interface Award {
   year: string;
 }
 
+export interface ATSAnalysis {
+  score: number;
+  keywords: string[];
+  missingKeywords: string[];
+  suggestions: string[];
+}
+
+export interface ATSKeywords {
+  industry: string[];
+  technical: string[];
+  soft: string[];
+}
+
 export interface ResumeData {
   basicdetails: BasicDetails;
   about: string;
