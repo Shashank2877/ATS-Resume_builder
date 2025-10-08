@@ -62,13 +62,13 @@ const SignInPage: React.FC<SignInPageProps> = ({ onToggleMode }) => {
         if (demoSuccess) {
           navigate('/builder');
         } else {
-          alert('Demo login successful! Redirecting to ATS Resume Builder...');
+          alert('Demo login successful! Redirecting to Resume Builder...');
           navigate('/builder');
         }
       }
     } catch (error) {
       console.error('Login error:', error);
-      alert('Demo login successful! Redirecting to ATS Resume Builder...');
+      alert('Demo login successful! Redirecting to Resume Builder...');
       navigate('/builder');
     } finally {
       setIsLoading(false);
@@ -96,12 +96,12 @@ const SignInPage: React.FC<SignInPageProps> = ({ onToggleMode }) => {
         console.log(`Demo ${provider} login successful`);
         navigate('/builder');
       } else {
-        alert(`Welcome! Demo ${provider} login successful. Redirecting to ATS Resume Builder...`);
+        alert(`Welcome! Demo ${provider} login successful. Redirecting to Resume Builder...`);
         navigate('/builder');
       }
     } catch (error) {
       console.error('Social login error:', error);
-      alert(`Welcome! Demo ${provider} login successful. Redirecting to ATS Resume Builder...`);
+      alert(`Welcome! Demo ${provider} login successful. Redirecting to Resume Builder...`);
       navigate('/builder');
     } finally {
       setIsLoading(false);
@@ -116,9 +116,9 @@ const SignInPage: React.FC<SignInPageProps> = ({ onToggleMode }) => {
             <div className="brand-icon">
               <Briefcase className="icon-large" />
             </div>
-            <h1 className="brand-title">ATS Resume Builder</h1>
+            <h1 className="brand-title">Resume Builder</h1>
             <p className="brand-subtitle">
-              Create professional resumes that get noticed by both recruiters and ATS systems
+              Create professional resumes that get noticed by recruiters
             </p>
           </div>
 

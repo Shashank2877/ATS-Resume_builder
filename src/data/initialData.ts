@@ -48,6 +48,9 @@ export const initialResumeData: ResumeData = {
     }
   ],
   skills: {
+    techSkills: ["Python", "C++", "JavaScript", "React", "AWS", "Flask", "Express.js", "Git", "VS Code", "Kubernetes", "Jenkins", "SQL", "MySQL", "MongoDB"],
+    softSkills: ["Leadership", "Communication", "Problem Solving", "Teamwork", "Time Management"],
+    // Legacy fields for backward compatibility
     programmingLanguages: "Python, C++, JavaScript",
     librariesFrameworks: "React, AWS, Flask, Express.js",
     toolsPlatforms: "Git, VS Code, Kubernetes, Jenkins",
@@ -57,17 +60,20 @@ export const initialResumeData: ResumeData = {
     {
       name: "Developing Back-end apps with Node.js and React",
       issuer: "IBM - Coursera",
-      year: "2024"
+      year: "2024",
+      link: "https://coursera.org/verify/example1"
     },
     {
       name: "Developing with HTML, CSS, JS: Web3 Applications",
       issuer: "Coursera",
-      year: "2024"
+      year: "2024",
+      link: "https://coursera.org/verify/example2"
     },
     {
       name: "C++ Basic Structures: Vectors, Pointers, Strings, and Files",
       issuer: "Coursera",
-      year: "2024"
+      year: "2024",
+      link: "https://coursera.org/verify/example3"
     }
   ],
   experience: [
@@ -131,6 +137,8 @@ export const initialResumeData: ResumeData = {
       technologies: "Python, TensorFlow"
     }
   ],
+  techSkills: ["Python", "C++", "JavaScript", "React", "AWS", "Flask", "Express.js", "Git", "VS Code", "Kubernetes", "Jenkins", "SQL", "MySQL", "MongoDB"],
+  softSkills: ["Leadership", "Communication", "Problem Solving", "Teamwork", "Time Management"],
   awards: [
     {
       title: "Represented college at the IEEE Technical Symposium 2023 with a paper on AI-driven cloud optimization",

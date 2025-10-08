@@ -1,19 +1,19 @@
 export interface BasicDetails {
-  firstName: string;
-  surname: string;
+  name: string;
   title: string;
   phone: string;
   email: string;
   website: string;
-  github: string;
-  linkedin: string;
-  city: string;
-  country: string;
-  pinCode: string;
-  // Keep legacy fields for backward compatibility
-  name: string;
   address: string;
-  location: string;
+  // Legacy fields for backward compatibility
+  firstName?: string;
+  surname?: string;
+  github?: string;
+  linkedin?: string;
+  city?: string;
+  country?: string;
+  pinCode?: string;
+  location?: string;
 }
 
 export interface Education {
@@ -60,16 +60,21 @@ export interface Project {
 }
 
 export interface Skills {
-  programmingLanguages: string;
-  librariesFrameworks: string;
-  toolsPlatforms: string;
-  databases: string;
+  techSkills: string[];
+  softSkills: string[];
+  // Legacy fields for backward compatibility
+  programmingLanguages?: string;
+  librariesFrameworks?: string;
+  toolsPlatforms?: string;
+  databases?: string;
 }
 
 export interface Certification {
   name: string;
-  issuer: string;
-  year: string;
+  link: string;
+  // Legacy fields for backward compatibility
+  issuer?: string;
+  year?: string;
 }
 
 export interface Award {
@@ -82,22 +87,12 @@ export interface ResumeData {
   basicdetails: BasicDetails;
   about: string;
   education: Education[];
-  skills: Skills;
+  techSkills: string[];
+  softSkills: string[];
   certifications: Certification[];
   experience: Experience[];
   projects: Project[];
-  awards: Award[];
-}
-
-export interface ATSAnalysis {
-  score: number;
-  keywords: string[];
-  suggestions: string[];
-  missingKeywords: string[];
-}
-
-export interface ATSKeywords {
-  technical: string[];
-  soft: string[];
-  industry: string[];
+  // Legacy fields for backward compatibility
+  skills?: Skills;
+  awards?: Award[];
 }

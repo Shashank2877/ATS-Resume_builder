@@ -1,15 +1,8 @@
-# ATS Resume Builder
+# Resume Builder
 
-A modern, interactive resume builder optimized for Applicant Tracking Systems (ATS). Built with React, TypeScript, and Tailwind CSS.
+A modern, interactive resume builder for creating professional resumes. Built with React, TypeScript, and modern CSS.
 
 ## Features
-
-🎯 **ATS Optimization**
-
-- Real-time ATS score calculation
-- Keyword highlighting and suggestions
-- Job description analysis
-- Missing keyword detection
 
 ✨ **Interactive Editing**
 
@@ -45,7 +38,7 @@ A modern, interactive resume builder optimized for Applicant Tracking Systems (A
 
    ```bash
    git clone <repository-url>
-   cd ats-resume-builder
+   cd resume-builder
    ```
 
 2. Install dependencies:
@@ -76,16 +69,7 @@ The build artifacts will be stored in the `dist/` directory.
 
 1. **Edit Mode**: Start by entering your basic information, experience, education, and skills
 2. **Preview Mode**: See how your resume looks in real-time
-3. **ATS Analysis**: Check your ATS score and get optimization suggestions
-4. **Export**: Download your resume as PDF, HTML, or JSON
-
-### ATS Optimization Tips
-
-- Include relevant keywords from job descriptions
-- Use standard section headings
-- Avoid complex formatting or graphics
-- Include quantifiable achievements
-- Use action verbs in experience descriptions
+3. **Export**: Download your resume as PDF, HTML, or JSON
 
 ## Technologies Used
 
@@ -104,7 +88,6 @@ src/
 ├── components/          # React components
 │   ├── ResumeEditor.tsx    # Main editing interface
 │   ├── ResumePreview.tsx   # Live preview component
-│   ├── ATSAnalyzer.tsx     # ATS analysis tools
 │   └── ExportTools.tsx     # Export functionality
 ├── types/               # TypeScript type definitions
 ├── data/               # Initial data and constants
@@ -125,6 +108,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Inspired by modern resume builders and ATS optimization best practices
+- Inspired by modern resume builders and professional design practices
 - Icons provided by [Lucide](https://lucide.dev/)
 - Built with [Vite](https://vitejs.dev/) and [React](https://reactjs.org/)

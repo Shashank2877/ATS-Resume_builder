@@ -96,7 +96,7 @@ export default function SignUpPage({ onSignUp }: SignUpPageProps) {
               Account Created Successfully!
             </h2>
             <p className="text-gray-600 mb-6">
-              Welcome to ATS Resume Builder! You're now being redirected to start building your professional resume.
+              Welcome to Resume Builder! You're now being redirected to start building your professional resume.
             </p>
             <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary-500 border-t-transparent mx-auto"></div>
           </div>
@@ -119,7 +119,7 @@ export default function SignUpPage({ onSignUp }: SignUpPageProps) {
             Create your account
           </h2>
           <p className="text-gray-600">
-            Start building professional resumes optimized for ATS
+            Start building professional resumes that get noticed
           </p>
         </div>
 

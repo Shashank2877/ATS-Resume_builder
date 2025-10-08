@@ -1,26 +1,13 @@
 import { forwardRef } from 'react';
-import type { ResumeData, ATSAnalysis } from '../types/resume';
+import type { ResumeData } from '../types/resume';
 import { MapPin, Phone, Mail, Globe, User, GraduationCap, Briefcase, Award, Target, Lightbulb } from 'lucide-react';
 
 interface ResumePreviewProps {
   resumeData: ResumeData;
-  atsAnalysis?: ATSAnalysis | null;
-  showATSHighlights?: boolean;
 }
 
 const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
-  ({ resumeData, atsAnalysis, showATSHighlights = false }, ref) => {
-    const highlightKeywords = (text: string): string => {
-      if (!showATSHighlights || !atsAnalysis?.keywords) return text;
-      
-      let highlightedText = text;
-      atsAnalysis.keywords.forEach(keyword => {
-        const regex = new RegExp(`\\b${keyword}\\b`, 'gi');
-        highlightedText = highlightedText.replace(regex, `<span class="highlighted-keyword">$&</span>`);
-      });
-      return highlightedText;
-    };
-
+  ({ resumeData }, ref) => {
     return (
       <div ref={ref} className="resume-preview print:shadow-none print:border-none">
         {/* Header */}
@@ -70,28 +57,46 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
                   <User className="h-5 w-5 text-primary-600" />
                   <span>About Me</span>
                 </h2>
-                <div 
-                  className="text-gray-700 leading-relaxed"
-                  dangerouslySetInnerHTML={{ __html: highlightKeywords(resumeData.about) }}
-                />
+                <div className="text-gray-700 leading-relaxed">
+                  {resumeData.about}
+                </div>
               </section>
             )}
 
             {/* Skills */}
-            {resumeData.skills.length > 0 && (
+            {(resumeData.techSkills.length > 0 || resumeData.softSkills.length > 0) && (
               <section>
                 <h2 className="text-lg font-bold text-gray-900 mb-4 flex items-center space-x-2 border-b border-gray-300 pb-2">
                   <Lightbulb className="h-5 w-5 text-primary-600" />
                   <span>Skills</span>
                 </h2>
                 <div className="space-y-2">
-                  {resumeData.skills.map((skill, index) => (
-                    <div 
-                      key={index}
-                      className="text-gray-700"
-                      dangerouslySetInnerHTML={{ __html: highlightKeywords(`• ${skill}`) }}
-                    />
-                  ))}
+                  {resumeData.techSkills.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-gray-800 mb-1">Technical Skills</h3>
+                      {resumeData.techSkills.map((skill, index) => (
+                        <div 
+                          key={index}
+                          className="text-gray-700"
+                        >
+                          • {skill}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {resumeData.softSkills.length > 0 && (
+                    <div>
+                      <h3 className="font-semibold text-gray-800 mb-1">Soft Skills</h3>
+                      {resumeData.softSkills.map((skill, index) => (
+                        <div 
+                          key={index}
+                          className="text-gray-700"
+                        >
+                          • {skill}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               </section>
             )}
@@ -108,8 +113,9 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
                     <div 
                       key={index}
                       className="text-gray-700"
-                      dangerouslySetInnerHTML={{ __html: highlightKeywords(`• ${cert}`) }}
-                    />
+                    >
+                      • {cert.name} - {cert.issuer}
+                    </div>
                   ))}
                 </div>
               </section>
@@ -138,10 +144,9 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
                           {exp.year}
                         </span>
                       </div>
-                      <div 
-                        className="text-gray-700 leading-relaxed"
-                        dangerouslySetInnerHTML={{ __html: highlightKeywords(exp.description) }}
-                      />
+                      <div className="text-gray-700 leading-relaxed">
+                        {exp.description}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -182,10 +187,9 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
                   {resumeData.projects.map((project, index) => (
                     <div key={index}>
                       <h3 className="font-semibold text-gray-900 mb-1">{project.name}</h3>
-                      <div 
-                        className="text-gray-700"
-                        dangerouslySetInnerHTML={{ __html: highlightKeywords(project.result) }}
-                      />
+                      <div className="text-gray-700">
+                        {project.result}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -194,17 +198,6 @@ const ResumePreview = forwardRef<HTMLDivElement, ResumePreviewProps>(
           </div>
         </div>
 
-        {/* ATS Score Badge */}
-        {showATSHighlights && atsAnalysis && (
-          <div className="fixed top-4 right-4 z-50">
-            <div className={`ats-score ${
-              atsAnalysis.score >= 80 ? 'high' : 
-              atsAnalysis.score >= 60 ? 'medium' : 'low'
-            }`}>
-              ATS Score: {atsAnalysis.score}%
-            </div>
-          </div>
-        )}
       </div>
     );
   }

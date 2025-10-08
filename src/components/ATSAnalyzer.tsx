@@ -39,8 +39,8 @@ export default function ATSAnalyzer({ resumeData, onAnalysis, analysis }: ATSAna
       const allText = `
         ${resumeData.basicdetails.name} ${resumeData.basicdetails.title}
         ${resumeData.about}
-        ${resumeData.skills.join(' ')}
-        ${resumeData.certifications.join(' ')}
+        ${resumeData.techSkills.join(' ')} ${resumeData.softSkills.join(' ')}
+        ${resumeData.certifications.map(cert => typeof cert === 'string' ? cert : cert.name).join(' ')}
         ${resumeData.experience.map(exp => `${exp.role} ${exp.company} ${exp.description}`).join(' ')}
         ${resumeData.projects.map(proj => `${proj.name} ${proj.result}`).join(' ')}
         ${jobDescription}
@@ -65,7 +65,7 @@ export default function ATSAnalyzer({ resumeData, onAnalysis, analysis }: ATSAna
       // Bonus points for specific sections
       let bonus = 0;
       if (resumeData.about.length > 50) bonus += 5;
-      if (resumeData.skills.length >= 6) bonus += 5;
+      if ((resumeData.techSkills.length + resumeData.softSkills.length) >= 6) bonus += 5;
       if (resumeData.experience.length >= 2) bonus += 5;
       if (resumeData.certifications.length >= 1) bonus += 5;
       
@@ -74,7 +74,7 @@ export default function ATSAnalyzer({ resumeData, onAnalysis, analysis }: ATSAna
       // Generate suggestions
       const suggestions = [];
       if (resumeData.about.length < 50) suggestions.push('Add a more detailed professional summary');
-      if (resumeData.skills.length < 6) suggestions.push('Include more relevant skills');
+      if ((resumeData.techSkills.length + resumeData.softSkills.length) < 6) suggestions.push('Include more relevant skills');
       if (uniqueKeywords.length < 10) suggestions.push('Include more industry-specific keywords');
       if (resumeData.experience.some(exp => exp.description.length < 50)) {
         suggestions.push('Provide more detailed job descriptions');

@@ -1,30 +1,30 @@
 import React, { useState } from 'react';
-import { Link, useNavigate } from 'react-router';
-import { Eye, EyeOff, Clock, Trophy, Target, Shield, Zap, CheckCircle, Sparkles, ArrowRight } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom'; 
+import { 
+  Eye, EyeOff, Clock, Trophy, Target, Shield, 
+  CheckCircle, Sparkles, ArrowRight 
+} from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import type { LoginCredentials, AuthError } from '../types/auth';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { signIn } = useAuth();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState<LoginCredentials>({
+  const [formData, setFormData] = useState({
     email: '',
     password: '',
     rememberMe: false,
   });
   const [showPassword, setShowPassword] = useState(false);
-  const [error, setError] = useState<AuthError | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
-    setFormData(prev => ({
+    setFormData((prev: any) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
-    if (error?.field === name) {
-      setError(null);
-    }
+    if (error) setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -33,21 +33,25 @@ export default function LoginPage() {
     setIsLoading(true);
 
     if (!formData.email) {
-      setError({ message: 'Email is required', field: 'email' });
+      setError('Email is required');
       setIsLoading(false);
       return;
     }
     if (!formData.password) {
-      setError({ message: 'Password is required', field: 'password' });
+      setError('Password is required');
       setIsLoading(false);
       return;
     }
 
-    const result = await login(formData);
-    if (result.success) {
-      navigate('/');
-    } else if (result.error) {
-      setError(result.error);
+    try {
+      const success = await signIn(formData.email, formData.password);
+      if (success) {
+        navigate('/builder'); // redirect after successful login
+      } else {
+        setError('Invalid email or password');
+      }
+    } catch (err) {
+      setError('Login failed. Please try again.');
     }
     setIsLoading(false);
   };
@@ -77,9 +81,8 @@ export default function LoginPage() {
       </div>
 
       <div className="relative z-10 min-h-screen flex">
-        {/* Left Panel - Features */}
+        {/* Left Panel */}
         <div className="hidden lg:flex lg:w-1/2 xl:w-2/5 bg-gradient-to-br from-indigo-600 via-purple-600 to-pink-600 p-12 flex-col justify-center relative overflow-hidden">
-          {/* Decorative Elements */}
           <div className="absolute top-0 left-0 w-full h-full">
             <div className="absolute top-20 left-20 w-32 h-32 border border-white/20 rounded-full"></div>
             <div className="absolute bottom-20 right-20 w-24 h-24 border border-white/20 rounded-full"></div>
@@ -98,45 +101,22 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-6">
-              <div className="flex items-start space-x-4 animate-fadeInUp animation-delay-200">
-                <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                  <Clock className="w-5 h-5 text-white" />
+              {[
+                { icon: Clock, title: 'Save time with hassle-free templates', text: 'Professional templates designed by experts' },
+                { icon: Trophy, title: 'Beat the competition', text: 'Using actionable, contextual advice' },
+                { icon: Target, title: 'Highlight key achievements', text: 'With memorable visuals and formatting' },
+                { icon: CheckCircle, title: 'Get inspired by 1800+ examples', text: 'Free Resume Examples and Templates' }
+              ].map((item, idx) => (
+                <div key={idx} className={`flex items-start space-x-4 animate-fadeInUp animation-delay-${200 * (idx + 1)}`}>
+                  <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
+                    <item.icon className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-lg font-semibold text-white mb-1">{item.title}</h3>
+                    <p className="text-indigo-100 text-sm">{item.text}</p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-1">Save time with hassle-free templates</h3>
-                  <p className="text-indigo-100 text-sm">Professional templates designed by experts</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4 animate-fadeInUp animation-delay-400">
-                <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                  <Trophy className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-1">Beat the competition</h3>
-                  <p className="text-indigo-100 text-sm">Using actionable, contextual advice</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4 animate-fadeInUp animation-delay-600">
-                <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                  <Target className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-1">Highlight key achievements</h3>
-                  <p className="text-indigo-100 text-sm">With memorable visuals and formatting</p>
-                </div>
-              </div>
-
-              <div className="flex items-start space-x-4 animate-fadeInUp animation-delay-800">
-                <div className="flex-shrink-0 w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center">
-                  <CheckCircle className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h3 className="text-lg font-semibold text-white mb-1">Get inspired by 1800+ examples</h3>
-                  <p className="text-indigo-100 text-sm">Free Resume Examples and Templates</p>
-                </div>
-              </div>
+              ))}
             </div>
 
             <div className="mt-12 animate-fadeInUp animation-delay-1000">
@@ -151,11 +131,10 @@ export default function LoginPage() {
         {/* Right Panel - Login Form */}
         <div className="w-full lg:w-1/2 xl:w-3/5 flex items-center justify-center p-8 relative">
           <div className="w-full max-w-md animate-slideInRight">
-            {/* Login Form Card */}
             <div className="bg-white/80 backdrop-blur-xl rounded-3xl shadow-2xl p-8 border border-white/20">
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-bold text-gray-900 mb-2">
-                  Sign in your account
+                  Sign in to your account
                 </h2>
                 <p className="text-gray-600">Welcome back! Please enter your details.</p>
               </div>
@@ -210,7 +189,7 @@ export default function LoginPage() {
               <form onSubmit={handleSubmit} className="space-y-6">
                 {error && (
                   <div className="p-4 rounded-xl bg-red-50 border border-red-200 animate-shake">
-                    <p className="text-red-600 text-sm font-medium">{error.message}</p>
+                    <p className="text-red-600 text-sm font-medium">{error}</p>
                   </div>
                 )}
 
@@ -223,7 +202,7 @@ export default function LoginPage() {
                       value={formData.email}
                       onChange={handleChange}
                       className={`w-full px-4 py-3 rounded-xl border transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                        error?.field === 'email' 
+                        error && error.includes('Email') 
                           ? 'border-red-300 bg-red-50' 
                           : 'border-gray-300 bg-white/70 backdrop-blur-sm hover:border-indigo-300'
                       }`}
@@ -239,7 +218,7 @@ export default function LoginPage() {
                       value={formData.password}
                       onChange={handleChange}
                       className={`w-full px-4 py-3 pr-12 rounded-xl border transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent ${
-                        error?.field === 'password' 
+                        error && error.includes('Password') 
                           ? 'border-red-300 bg-red-50' 
                           : 'border-gray-300 bg-white/70 backdrop-blur-sm hover:border-indigo-300'
                       }`}
