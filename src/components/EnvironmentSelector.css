@@ -1,0 +1,197 @@
+/* Environment Selector Styles */
+.env-selector-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px;
+  cursor: pointer;
+  z-index: 1000;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  transition: all 0.2s;
+}
+
+.env-selector-toggle:hover {
+  background: #2563eb;
+  transform: scale(1.05);
+}
+
+.env-selector-panel {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  width: 350px;
+  max-height: 80vh;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+  z-index: 1000;
+  overflow-y: auto;
+  padding: 1rem;
+}
+
+.env-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.env-header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #1f2937;
+}
+
+.close-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6b7280;
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.close-btn:hover {
+  color: #374151;
+}
+
+.current-env {
+  margin-bottom: 1rem;
+}
+
+.current-env h4 {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.env-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.env-development { 
+  background: #dbeafe; 
+  color: #1d4ed8; 
+}
+
+.env-staging { 
+  background: #fef3c7; 
+  color: #d97706; 
+}
+
+.env-production { 
+  background: #dcfce7; 
+  color: #16a34a; 
+}
+
+.env-options {
+  margin-bottom: 1rem;
+}
+
+.env-option {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.env-option:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+}
+
+.env-option.active {
+  background: #eff6ff;
+  border-color: #3b82f6;
+}
+
+.env-option span {
+  font-weight: 500;
+  color: #1f2937;
+}
+
+.env-option small {
+  margin-left: auto;
+  color: #6b7280;
+  font-size: 0.8rem;
+}
+
+.env-details {
+  margin-bottom: 1rem;
+}
+
+.env-details h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.config-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 0.8rem;
+}
+
+.config-item label {
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.config-item code {
+  background: #f1f5f9;
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  color: #374151;
+}
+
+.dev-tools {
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.dev-tools h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.9rem;
+  color: #4b5563;
+}
+
+.dev-btn {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+  font-size: 0.8rem;
+  cursor: pointer;
+  margin-right: 0.5rem;
+  margin-bottom: 0.5rem;
+  transition: all 0.2s;
+}
+
+.dev-btn:hover {
+  background: #e5e7eb;
+}

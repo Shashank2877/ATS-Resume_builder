@@ -1,208 +1,243 @@
 import React, { useState } from 'react';
-import { Plus, Trash2, Download } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Trash2, Wand2, Loader2 } from 'lucide-react';
+import AIResumeGenerator from '../services/AIResumeGenerator';
+import { useFormController, useSectionVisibility } from '../hooks/useFormController';
+import { resumeApi } from '../services/backendApi';
+import { initialResumeData } from '../data/initialData';
+import EnvironmentSelector from '../components/EnvironmentSelector';
+import type { ResumeData } from '../types/resume';
 import './ResumeBuilder.css';
 
 export default function ResumeBuilder() {
-  const [resume, setResume] = useState({
-    basicdetails: {
-      name: 'Olivia Sanchez',
-      title: 'Marketing Manager',
-      phone: '+123-456-7890',
-      email: 'hello@reallygreatsite.com',
-      website: 'www.reallygreatsite.com',
-      address: '123 Anywhere St, Any City'
-    },
-    about: 'Motivated professional with strong problem-solving skills, seeking to contribute value in a dynamic organization.',
-    education: [
-      {
-        year: '2020 – 2023',
-        degree: 'Bachelor of Design',
-        university: 'Borceile University',
-        cgpa: '8.67'
-      }
-    ],
-    techSkills: [
-      'React',
-      'Node.js',
-      'JavaScript',
-      'TypeScript',
-      'MongoDB',
-      'Python'
-    ],
-    softSkills: [
-      'Leadership',
-      'Communication',
-      'Problem Solving',
-      'Teamwork',
-      'Time Management'
-    ],
-    certifications: [
-      { name: 'Google Digital Marketing Certification', link: 'https://skillshop.exceedlms.com/student/path/18128-google-ads-search-certification' },
-      { name: 'HubSpot Inbound Marketing', link: 'https://academy.hubspot.com/courses/inbound-marketing' },
-      { name: 'Project Management Professional (PMP)', link: 'https://www.pmi.org/certifications/project-management-pmp' }
-    ],
-    experience: [
-      {
-        year: '2020 – 2023',
-        company: 'Ginyard International Co.',
-        location: 'Sydney, Australia',
-        role: 'Product Design Manager',
-        description: 'Led product design initiatives to improve user experience and drive growth.'
-      }
-    ],
-    projects: [
-      {
-        name: 'Brand Redesign Strategy',
-        result: 'Increased client engagement by 40%',
-        github: 'https://github.com/username/brand-redesign',
-        technologies: 'React, Node.js, MongoDB'
-      }
-    ]
-  });
+  const navigate = useNavigate();
+  
+  // Use the new form management hooks
+  const {
+    formData: resume,
+    errors,
+    isValid,
+    updateField,
+    patchArray,
+    validateForm,
+    resetForm,
+    setFormData
+  } = useFormController(initialResumeData);
 
-  const [sectionVisibility, setSectionVisibility] = useState({
+  const {
+    sectionVisibility,
+    toggleSection
+  } = useSectionVisibility({
     experience: true,
     projects: true,
     certifications: true
   });
 
-  const updateField = (section: string, index: number | string, field: string | null, value: string) => {
-    const newResume = { ...resume };
-    if (section === 'basicdetails') {
-      (newResume.basicdetails as Record<string, any>)[field] = value;
-    } else if (section === 'about') {
-      newResume.about = value;
-    } else if (typeof index === 'number') {
-      const sectionArray = newResume[section] as any[];
-      if (sectionArray && sectionArray[index]) {
-        (sectionArray[index] as Record<string, any>)[field] = value;
-      }
-    } else {
-      (newResume[section] as Record<string, any>)[field] = value;
-    }
-    setResume(newResume);
-  };
+  // AI Processing State
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [apiError, setApiError] = useState<string | null>(null);
+  
+  // Environment selector state
+  const [showEnvSelector, setShowEnvSelector] = useState(false);
 
+  // Helper functions for array operations
   const addItem = (section: string) => {
-    const newResume = { ...resume };
     const templates = {
-      education: { year: '', degree: '', university: '', cgpa: '' },
-      experience: { year: '', company: '', location: '', role: '', description: '' },
-      projects: { name: '', result: '', github: '', technologies: '' },
+      education: { 
+        institution: '', 
+        degree: '', 
+        specialization: '',
+        startDate: '',
+        endDate: '',
+        location: '',
+        cgpa: '',
+        percentage: '',
+        year: '',
+        university: ''
+      },
+      experience: { 
+        company: '', 
+        position: '',
+        location: '', 
+        startDate: '',
+        endDate: '',
+        description: '',
+        year: '', 
+        role: '' 
+      },
+      projects: { 
+        name: '', 
+        description: '', 
+        technologies: [],
+        startDate: '',
+        endDate: '',
+        github: '',
+        demo: '',
+        result: '' 
+      },
       techSkills: '',
       softSkills: '',
-      certifications: { name: '', link: '' }
+      certifications: { name: '', issuer: '', issueDate: '', link: '' }
     };
     
-    if (Array.isArray((newResume as any)[section])) {
-      (newResume as any)[section].push((templates as any)[section]);
-    }
-    setResume(newResume);
+    patchArray(section, 'add', undefined, (templates as any)[section]);
   };
 
   const removeItem = (section: string, index: number) => {
-    const newResume = { ...resume };
-    (newResume as any)[section].splice(index, 1);
-    setResume(newResume);
+    patchArray(section, 'remove', index);
   };
 
-  const toggleSection = (section: keyof typeof sectionVisibility) => {
-    setSectionVisibility(prev => ({
-      ...prev,
-      [section]: !prev[section]
-    }));
-  };
+  // AI Resume Generation Function
+  const generateATSResume = async () => {
+    setApiError(null);
+    
+    // Validate the form before generation
+    if (!validateForm()) {
+      setApiError('Please fix the form errors before generating your resume.');
+      return;
+    }
 
-  const downloadPDF = () => {
-    const printContent = document.getElementById('resume-preview')?.innerHTML;
-    const printWindow = window.open('', '', 'height=800,width=800');
-    if (printWindow && printContent) {
-      printWindow.document.write('<html><head><title>Resume</title>');
-      printWindow.document.write('<style>body{font-family:Arial,sans-serif;padding:40px;} h1{font-size:32px;margin-bottom:8px;} h2{font-size:18px;font-weight:bold;text-transform:uppercase;border-bottom:2px solid #000;padding-bottom:4px;margin-top:20px;margin-bottom:12px;} h3{font-weight:bold;text-transform:uppercase;margin-bottom:4px;} p{margin:2px 0;} .header{border-bottom:2px solid #000;padding-bottom:12px;margin-bottom:20px;} .section{margin-bottom:20px;} a{color:#2563eb;text-decoration:none;} ul{margin:4px 0;padding-left:20px;}</style>');
-      printWindow.document.write('</head><body>');
-      printWindow.document.write(printContent);
-      printWindow.document.write('</body></html>');
-      printWindow.document.close();
-      printWindow.print();
+    // Basic validation for required fields
+    if (!resume.basicdetails.name || !resume.basicdetails.email) {
+      setApiError('Please fill in at least your name and email before generating your resume.');
+      return;
+    }
+
+    setIsGenerating(true);
+    
+    try {
+      // Try to generate using API first, fall back to local AI service
+      let optimizedResume;
+      
+      try {
+        // Use the API service for AI generation
+        optimizedResume = await resumeApi.saveAndGenerate(resume, {
+          targetRole: resume.basicdetails.title || 'Software Engineer',
+          industry: 'technology',
+          experienceLevel: 'mid',
+          atsOptimization: true,
+          keywordDensity: 'medium'
+        });
+        
+        // Extract the actual resume data from the backend response
+        if (optimizedResume.success && optimizedResume.data) {
+          optimizedResume = optimizedResume.data.optimizedResume;
+        }
+      } catch (apiError) {
+        console.log('API generation failed, falling back to local service:', apiError);
+        // Fallback to local AI service (your friend's implementation)
+        optimizedResume = await AIResumeGenerator.generateOptimizedResume(resume as any, {
+          targetRole: resume.basicdetails.title || 'Software Engineer',
+          industry: 'technology',
+          experienceLevel: 'mid',
+          atsOptimization: true,
+          keywordDensity: 'medium'
+        });
+      }
+      
+      // Navigate to preview page with the generated resume data
+      navigate('/resume-preview', {
+        state: {
+          generatedResume: optimizedResume,
+          sectionVisibility: sectionVisibility
+        }
+      });
+    } catch (error) {
+      console.error('Error generating ATS resume:', error);
+      setApiError('Sorry, there was an error generating your resume. Please try again.');
+    } finally {
+      setIsGenerating(false);
     }
   };
 
   return (
-    <div className="split-layout">
+    <div className="form-layout">
+      {/* Environment Selector */}
+      <EnvironmentSelector 
+        isVisible={showEnvSelector} 
+        onToggle={() => setShowEnvSelector(!showEnvSelector)} 
+      />
       
-      {/* LEFT SIDE - FORM */}
-      <div className="form-panel">
+      {/* FORM PANEL */}
+      <div className="form-panel-centered">
         <div className="form-container">
-          <h1 className="form-title">Resume Builder</h1>
-          
-          {/* Personal Info */}
-          <FormSection title="Personal Information">
-            <FormInput label="Full Name" value={resume.basicdetails.name} onChange={(v) => updateField('basicdetails', 'name', 'name', v)} />
-            <FormInput label="Title" value={resume.basicdetails.title} onChange={(v) => updateField('basicdetails', 'title', 'title', v)} />
-            <FormInput label="Phone" value={resume.basicdetails.phone} onChange={(v) => updateField('basicdetails', 'phone', 'phone', v)} />
-            <FormInput label="Email" value={resume.basicdetails.email} onChange={(v) => updateField('basicdetails', 'email', 'email', v)} />
-            <FormInput label="Website" value={resume.basicdetails.website} onChange={(v) => updateField('basicdetails', 'website', 'website', v)} />
-            <FormInput label="Address" value={resume.basicdetails.address} onChange={(v) => updateField('basicdetails', 'address', 'address', v)} />
+          <div className="form-header">
+            <h1 className="form-title">ATS Resume Builder</h1>
+            <p className="form-subtitle">Fill in your details and let AI create an ATS-optimized resume for you</p>
+          </div>
+
+          {/* Basic Details */}
+          <FormSection title="Basic Details">
+            <FormInput label="Full Name *" value={resume.basicdetails.name} onChange={(v) => updateField('basicdetails', '', 'name', v)} placeholder="John Doe" />
+            <FormInput label="Job Title *" value={resume.basicdetails.title} onChange={(v) => updateField('basicdetails', '', 'title', v)} placeholder="Software Engineer" />
+            <FormInput label="Email *" value={resume.basicdetails.email} onChange={(v) => updateField('basicdetails', '', 'email', v)} placeholder="john@example.com" />
+            <FormInput label="Phone" value={resume.basicdetails.phone || ''} onChange={(v) => updateField('basicdetails', '', 'phone', v)} placeholder="+1-234-567-8900" />
+            <FormInput label="Website" value={resume.basicdetails.website || ''} onChange={(v) => updateField('basicdetails', '', 'website', v)} placeholder="www.johndoe.com" />
+            <FormInput label="Address" value={resume.basicdetails.address || ''} onChange={(v) => updateField('basicdetails', '', 'address', v)} placeholder="123 Main St, City, State" />
           </FormSection>
 
           {/* About */}
-          <FormSection title="About Me">
-            <FormTextarea label="About" value={resume.about} onChange={(v) => updateField('about', '', null, v)} />
+          <FormSection title="Professional Summary">
+            <FormTextarea label="About Yourself" value={resume.about} onChange={(v) => updateField('about', '', null, v)} placeholder="Brief description of your professional background and goals..." />
           </FormSection>
 
           {/* Education */}
           <FormSection title="Education" onAdd={() => addItem('education')}>
             {resume.education.map((edu, idx) => (
               <div key={idx} className="form-item">
-                <button onClick={() => removeItem('education', idx)} className="form-remove-btn">
-                  <Trash2 size={14} />
-                </button>
-                <FormInput label="Year" value={edu.year} onChange={(v) => updateField('education', idx, 'year', v)} />
-                <FormInput label="Degree" value={edu.degree} onChange={(v) => updateField('education', idx, 'degree', v)} />
-                <FormInput label="University" value={edu.university} onChange={(v) => updateField('education', idx, 'university', v)} />
-                <FormInput label="CGPA (e.g., 8.67, 9.2)" value={edu.cgpa} onChange={(v) => updateField('education', idx, 'cgpa', v)} />
+                {resume.education.length > 1 && (
+                  <button onClick={() => removeItem('education', idx)} className="form-remove-btn">
+                    <Trash2 size={14} />
+                  </button>
+                )}
+                <FormInput label="Year" value={edu.year} onChange={(v) => updateField('education', idx, 'year', v)} placeholder="2020 - 2024" />
+                <FormInput label="Degree" value={edu.degree} onChange={(v) => updateField('education', idx, 'degree', v)} placeholder="Bachelor of Computer Science" />
+                <FormInput label="University" value={edu.university} onChange={(v) => updateField('education', idx, 'university', v)} placeholder="University Name" />
+                <FormInput label="GPA/CGPA (optional)" value={edu.cgpa || ''} onChange={(v) => updateField('education', idx, 'cgpa', v)} placeholder="3.8/4.0 or 8.5/10" />
               </div>
             ))}
           </FormSection>
 
           {/* Experience */}
           {sectionVisibility.experience ? (
-            <FormSection title="Experience" onAdd={() => addItem('experience')}>
+            <FormSection title="Work Experience" onAdd={() => addItem('experience')}>
               <div className="section-options">
                 <button 
                   type="button" 
                   onClick={() => toggleSection('experience')} 
                   className="remove-section-btn"
                 >
-                  Remove Experience Section (No Experience)
+                  I don't have work experience
                 </button>
               </div>
-              {resume.experience.map((exp, idx) => (
+              {resume.experience?.map((exp, idx) => (
                 <div key={idx} className="form-item">
-                  <button onClick={() => removeItem('experience', idx)} className="form-remove-btn">
-                    <Trash2 size={14} />
-                  </button>
-                  <FormInput label="Year" value={exp.year} onChange={(v) => updateField('experience', idx, 'year', v)} />
-                  <FormInput label="Company" value={exp.company} onChange={(v) => updateField('experience', idx, 'company', v)} />
-                  <FormInput label="Role/Position" value={exp.role} onChange={(v) => updateField('experience', idx, 'role', v)} />
-                  <FormInput label="Location" value={exp.location} onChange={(v) => updateField('experience', idx, 'location', v)} />
-                  <FormTextarea label="Description" value={exp.description} onChange={(v) => updateField('experience', idx, 'description', v)} />
+                  {(resume.experience?.length || 0) > 1 && (
+                    <button onClick={() => removeItem('experience', idx)} className="form-remove-btn">
+                      <Trash2 size={14} />
+                    </button>
+                  )}
+                  <FormInput label="Duration" value={exp.year} onChange={(v) => updateField('experience', idx, 'year', v)} placeholder="Jan 2023 - Present" />
+                  <FormInput label="Company" value={exp.company} onChange={(v) => updateField('experience', idx, 'company', v)} placeholder="Company Name" />
+                  <FormInput label="Job Title" value={exp.role} onChange={(v) => updateField('experience', idx, 'role', v)} placeholder="Software Developer" />
+                  <FormInput label="Location" value={exp.location} onChange={(v) => updateField('experience', idx, 'location', v)} placeholder="City, State" />
+                  <FormTextarea label="Job Description" value={exp.description} onChange={(v) => updateField('experience', idx, 'description', v)} placeholder="Describe your responsibilities and achievements..." />
                 </div>
               ))}
             </FormSection>
           ) : (
             <div className="hidden-section">
               <div className="hidden-section-header">
-                <span className="hidden-section-title">Experience Section Hidden</span>
+                <span className="hidden-section-title">Work Experience Section Hidden</span>
                 <button 
                   type="button" 
                   onClick={() => toggleSection('experience')} 
                   className="restore-section-btn"
                 >
-                  Add Experience Section
+                  Add Work Experience
                 </button>
               </div>
-              <p className="hidden-section-note">You've chosen to hide the experience section. Click "Add Experience Section" if you want to add work experience.</p>
+              <p className="hidden-section-note">Perfect for students and fresh graduates. You can add work experience later if needed.</p>
             </div>
           )}
 
@@ -213,17 +248,15 @@ export default function ResumeBuilder() {
                 <input
                   type="text"
                   value={skill}
-                  onChange={(e) => {
-                    const newResume = {...resume};
-                    newResume.techSkills[idx] = e.target.value;
-                    setResume(newResume);
-                  }}
+                  onChange={(e) => updateField('techSkills', idx, null, e.target.value)}
                   className="form-list-input"
-                  placeholder="e.g., React, Python, AWS"
+                  placeholder="e.g., React, Python, AWS, MongoDB"
                 />
-                <button onClick={() => removeItem('techSkills', idx)} className="form-list-remove-btn">
-                  <Trash2 size={16} />
-                </button>
+                {resume.techSkills.length > 1 && (
+                  <button onClick={() => removeItem('techSkills', idx)} className="form-list-remove-btn">
+                    <Trash2 size={16} />
+                  </button>
+                )}
               </div>
             ))}
           </FormSection>
@@ -235,17 +268,15 @@ export default function ResumeBuilder() {
                 <input
                   type="text"
                   value={skill}
-                  onChange={(e) => {
-                    const newResume = {...resume};
-                    newResume.softSkills[idx] = e.target.value;
-                    setResume(newResume);
-                  }}
+                  onChange={(e) => updateField('softSkills', idx, null, e.target.value)}
                   className="form-list-input"
-                  placeholder="e.g., Leadership, Communication"
+                  placeholder="e.g., Leadership, Communication, Problem Solving"
                 />
-                <button onClick={() => removeItem('softSkills', idx)} className="form-list-remove-btn">
-                  <Trash2 size={16} />
-                </button>
+                {resume.softSkills.length > 1 && (
+                  <button onClick={() => removeItem('softSkills', idx)} className="form-list-remove-btn">
+                    <Trash2 size={16} />
+                  </button>
+                )}
               </div>
             ))}
           </FormSection>
@@ -254,146 +285,89 @@ export default function ResumeBuilder() {
           <FormSection title="Projects" onAdd={() => addItem('projects')}>
             {resume.projects.map((proj, idx) => (
               <div key={idx} className="form-item">
-                <button onClick={() => removeItem('projects', idx)} className="form-remove-btn">
-                  <Trash2 size={14} />
-                </button>
-                <FormInput label="Project Name" value={proj.name} onChange={(v) => updateField('projects', idx, 'name', v)} />
-                <FormTextarea label="Result" value={proj.result} onChange={(v) => updateField('projects', idx, 'result', v)} />
-                <FormInput label="GitHub Link" value={proj.github} onChange={(v) => updateField('projects', idx, 'github', v)} />
-                <FormInput label="Technologies Used" value={proj.technologies} onChange={(v) => updateField('projects', idx, 'technologies', v)} />
+                {resume.projects.length > 1 && (
+                  <button onClick={() => removeItem('projects', idx)} className="form-remove-btn">
+                    <Trash2 size={14} />
+                  </button>
+                )}
+                <FormInput label="Project Name" value={proj.name} onChange={(v) => updateField('projects', idx, 'name', v)} placeholder="My Awesome Project" />
+                <FormTextarea label="Description & Results" value={proj.result} onChange={(v) => updateField('projects', idx, 'result', v)} placeholder="What did you build and what impact did it have?" />
+                <FormInput label="GitHub/Demo Link" value={proj.github || ''} onChange={(v) => updateField('projects', idx, 'github', v)} placeholder="https://github.com/username/project" />
+                <FormInput label="Technologies Used" value={proj.technologies} onChange={(v) => updateField('projects', idx, 'technologies', v)} placeholder="React, Node.js, MongoDB" />
               </div>
             ))}
           </FormSection>
 
           {/* Certifications */}
-          <FormSection title="Certifications" onAdd={() => addItem('certifications')}>
-            {resume.certifications.map((cert, idx) => (
+          <FormSection title="Certifications (Optional)" onAdd={() => addItem('certifications')}>
+            {resume.certifications?.map((cert, idx) => (
               <div key={idx} className="form-item">
-                <button onClick={() => removeItem('certifications', idx)} className="form-remove-btn">
-                  <Trash2 size={14} />
-                </button>
-                <FormInput label="Certification Name" value={cert.name} onChange={(v) => updateField('certifications', idx, 'name', v)} />
-                <FormInput label="Certification Link" value={cert.link} onChange={(v) => updateField('certifications', idx, 'link', v)} />
+                {(resume.certifications?.length || 0) > 1 && (
+                  <button onClick={() => removeItem('certifications', idx)} className="form-remove-btn">
+                    <Trash2 size={14} />
+                  </button>
+                )}
+                <FormInput label="Certification Name" value={cert.name} onChange={(v) => updateField('certifications', idx, 'name', v)} placeholder="AWS Certified Developer" />
+                <FormInput label="Certificate Link (optional)" value={cert.link || ''} onChange={(v) => updateField('certifications', idx, 'link', v)} placeholder="https://certificate-link.com" />
               </div>
             ))}
           </FormSection>
 
-        </div>
-      </div>
-
-      {/* RIGHT SIDE - LIVE PREVIEW */}
-      <div className="preview-panel">
-        <div className="preview-header">
-          <button onClick={downloadPDF} className="download-pdf-btn">
-            <Download size={18} />
-            Download PDF
-          </button>
-        </div>
-        
-        <div id="resume-preview" className="preview-content">
-          {/* Header */}
-          <div className="preview-header-section">
-            <h1 className="preview-name">{resume.basicdetails.name}</h1>
-            <p className="preview-email">{resume.basicdetails.email}</p>
-            <p className="preview-phone">{resume.basicdetails.phone}</p>
-            <p className="preview-address">{resume.basicdetails.address}</p>
-            <p className="preview-links">
-              <a href={`https://${resume.basicdetails.website}`} className="preview-link">{resume.basicdetails.website}</a>
+          {/* AI Generation Button */}
+          <div className="ai-generation-section">
+            <h3 className="ai-section-title">AI-Powered Resume Optimization</h3>
+            <p className="ai-section-description">
+              Our AI will analyze your information and create an ATS-optimized resume that gets past screening systems and impresses recruiters.
             </p>
-          </div>
-
-          {/* About Section */}
-          {resume.about && (
-            <div className="preview-section">
-              <h2 className="preview-section-title">ABOUT</h2>
-              <p className="preview-section-content">{resume.about}</p>
-            </div>
-          )}
-
-          {/* Education */}
-          <div className="preview-section">
-            <h2 className="preview-section-title">EDUCATION</h2>
-            {resume.education.map((edu, idx) => (
-              <div key={idx} className="preview-item">
-                <div className="preview-item-header">
-                  <h3 className="preview-item-title">{edu.university}</h3>
-                  <span className="preview-item-date">{edu.year}</span>
-                </div>
-                <p className="preview-item-subtitle">{edu.degree}</p>
-                {edu.cgpa && <p className="preview-item-detail">CGPA: {edu.cgpa}</p>}
-              </div>
-            ))}
-          </div>
-
-          {/* Experience */}
-          {sectionVisibility.experience && (
-            <div className="preview-section">
-              <h2 className="preview-section-title">EXPERIENCE</h2>
-              {resume.experience.map((exp, idx) => (
-                <div key={idx} className="preview-item">
-                  <div className="preview-item-header">
-                    <h3 className="preview-item-title">{exp.company} | {exp.role}</h3>
-                    <span className="preview-item-date">{exp.location} | {exp.year}</span>
-                  </div>
-                  <p className="preview-item-description">{exp.description}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Skills */}
-          <div className="preview-section">
-            <h2 className="preview-section-title">SKILLS</h2>
             
-            {resume.techSkills.length > 0 && (
-              <div className="preview-skill-category">
-                <h3 className="preview-skill-category-title">Technical Skills</h3>
-                <div className="preview-skills">
-                  {resume.techSkills.map((skill, idx) => (
-                    <span key={idx} className="preview-skill-tag technical">{skill}</span>
-                  ))}
-                </div>
+            {/* Error Display */}
+            {apiError && (
+              <div className="error-message">
+                <strong>Error:</strong> {apiError}
               </div>
             )}
-
-            {resume.softSkills.length > 0 && (
-              <div className="preview-skill-category">
-                <h3 className="preview-skill-category-title">Soft Skills</h3>
-                <div className="preview-skills">
-                  {resume.softSkills.map((skill, idx) => (
-                    <span key={idx} className="preview-skill-tag soft">{skill}</span>
-                  ))}
-                </div>
+            
+            {/* Form Validation Errors */}
+            {!isValid && Object.keys(errors).length > 0 && (
+              <div className="validation-errors">
+                <h4>Please fix the following errors:</h4>
+                <ul>
+                  {Object.entries(errors).map(([section, sectionErrors]) => {
+                    if (typeof sectionErrors === 'string') {
+                      return <li key={section}>{sectionErrors}</li>;
+                    } else if (typeof sectionErrors === 'object') {
+                      return Object.entries(sectionErrors as any).map(([field, error]) => (
+                        <li key={`${section}.${field}`}>
+                          <strong>{section}.{field}:</strong> {error as string}
+                        </li>
+                      ));
+                    }
+                    return null;
+                  })}
+                </ul>
               </div>
             )}
-          </div>
-
-          {/* Projects */}
-          <div className="preview-section">
-            <h2 className="preview-section-title">PROJECTS / OPEN-SOURCE</h2>
-            {resume.projects.map((proj, idx) => (
-              <div key={idx} className="preview-item">
-                <div className="preview-item-header">
-                  <h3 className="preview-item-title">{proj.name}</h3>
-                  {proj.technologies && <span className="preview-item-tech">{proj.technologies}</span>}
-                </div>
-                {proj.github && <a href={proj.github} className="preview-project-link" target="_blank" rel="noopener noreferrer">GitHub: {proj.github}</a>}
-                <p className="preview-item-description">{proj.result}</p>
-              </div>
-            ))}
-          </div>
-
-          {/* Certifications */}
-          <div className="preview-section">
-            <h2 className="preview-section-title">CERTIFICATIONS</h2>
-            <ul className="preview-list">
-              {resume.certifications.map((cert, idx) => (
-                <li key={idx} className="preview-cert-item">
-                  <span>{cert.name}</span>
-                  {cert.link && <a href={cert.link} className="preview-cert-link" target="_blank" rel="noopener noreferrer"> - View Certificate</a>}
-                </li>
-              ))}
-            </ul>
+            
+            <button 
+              onClick={generateATSResume}
+              disabled={isGenerating}
+              className={`generate-ats-btn ${isGenerating ? 'generating' : ''}`}
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 size={20} className="animate-spin" />
+                  Creating Your ATS Resume...
+                </>
+              ) : (
+                <>
+                  <Wand2 size={20} />
+                  Generate My ATS Resume
+                </>
+              )}
+            </button>
+            <p className="ai-disclaimer">
+              * Fields marked with asterisk are required
+            </p>
           </div>
 
         </div>
@@ -428,9 +402,10 @@ interface FormInputProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
 }
 
-function FormInput({ label, value, onChange }: FormInputProps) {
+function FormInput({ label, value, onChange, placeholder }: FormInputProps) {
   return (
     <div className="form-input-group">
       <label className="form-label">{label}</label>
@@ -439,6 +414,7 @@ function FormInput({ label, value, onChange }: FormInputProps) {
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="form-input"
+        placeholder={placeholder}
       />
     </div>
   );
@@ -448,9 +424,10 @@ interface FormTextareaProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
+  placeholder?: string;
 }
 
-function FormTextarea({ label, value, onChange }: FormTextareaProps) {
+function FormTextarea({ label, value, onChange, placeholder }: FormTextareaProps) {
   return (
     <div className="form-input-group">
       <label className="form-label">{label}</label>
@@ -459,6 +436,7 @@ function FormTextarea({ label, value, onChange }: FormTextareaProps) {
         onChange={(e) => onChange(e.target.value)}
         rows={3}
         className="form-textarea"
+        placeholder={placeholder}
       />
     </div>
   );
